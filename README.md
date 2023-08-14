@@ -1,0 +1,1 @@
+This repo contains a couboid muscle example (`MonodomainSolver`+ `MuscleContractionSolver`). Before starting the simulation, the muscle is pulled from one side using the `HyperelasticitySolver`. The other side of the muscle is fixed for the whole simulation.
