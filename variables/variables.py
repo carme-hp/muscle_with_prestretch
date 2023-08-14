@@ -1,5 +1,7 @@
 # scenario name for log file
-scenario_name = ""
+scenario_name = "case_default"
+prestretch_bottom_traction = prestretch_bottom_traction = [0,0,-10]        # [N]  (-30 also works)
+prestretch_constant_body_force = (0,0,-9.81e-4)   # [cm/ms^2], gravity constant for the body force
 
 # timing parameters
 # -----------------
@@ -45,6 +47,7 @@ rho = 10   ## [1e-4 kg/cm^3] density of the water
 
 force = 1e5
 
+prestretch_elasticity_dirichlet_bc = {}
 elasticity_dirichlet_bc = {}
 elasticity_neumann_bc = []
 meshes = {}
@@ -263,41 +266,3 @@ def tendon_write_to_file(data):
     f = open("tendon.txt", "a")
     f.write("{:6.2f} {:+2.8f} {:+2.8f} {:+2.8f} {:+2.8f} {:+2.8f} {:+2.8f} {:+2.8f} {:+2.8f} \n".format(t, z_value_begin, x_traction_begin, y_traction_begin, z_traction_begin, z_value_end, x_traction_end, y_traction_end, z_traction_end))
     f.close()
-
-# parameters for precontraction
-# -----------------------------
-# load
-precontraction_constant_body_force = (0,0,10*9.81e-4)   # [cm/ms^2], gravity constant for the body force
-precontraction_bottom_traction = [0,0,0]        # [N]
-constant_gamma = 0.1    # 0.3 works, the active stress will be pmax*constant_gamma
-
-# parameters for prestretch
-# -----------------------------
-# load
-prestretch_constant_body_force = (0,0,-9.81e-4)   # [cm/ms^2], gravity constant for the body force
-prestretch_bottom_traction = [0,0,-10]        # [N]  (-30 also works)
-
-constant_gamma = 0.1    # 0.3 works, the active stress will be pmax*constant_gamma
-
-
-# callback function for artifical stress values, instead of multidomain
-def set_gamma_values(n_dofs_global, n_nodes_global_per_coordinate_direction, time_step_no, current_time, values, global_natural_dofs, custom_argument):
-    # n_dofs_global:       (int) global number of dofs in the mesh where to set the values
-    # n_nodes_global_per_coordinate_direction (list of ints)   [mx, my, mz] number of global nodes in each coordinate direction. 
-    #                       For composite meshes, the values are only for the first submesh, for other meshes sum(...) equals n_dofs_global
-    # time_step_no:        (int)   current time step number
-    # current_time:        (float) the current simulation time
-    # values:              (list of floats) all current local values of the field variable, if there are multiple components, they are stored in struct-of-array memory layout 
-    #                       i.e. [point0_component0, point0_component1, ... point0_componentN, point1_component0, point1_component1, ...]
-    #                       After the call, these values will be assigned to the field variable.
-    # global_natural_dofs  (list of ints) for every local dof no. the dof no. in global natural ordering
-    # additional_argument: The value of the option "additionalArgument", can be any Python object.
-    
-    # set all values to 1
-    for i in range(len(values)):
-      values[i] = constant_gamma
-
-def set_lambda_values(n_dofs_global, n_nodes_global_per_coordinate_direction, time_step_no, current_time, values, global_natural_dofs, custom_argument):
-    # set all values to 1
-    for i in range(len(values)):
-      values[i] = 1.0

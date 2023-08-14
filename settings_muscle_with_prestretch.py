@@ -61,14 +61,9 @@ if rank_no == 0:
 # initialize all helper variables
 from helper import *
 
-variables.scenario_name = "muscle_left"
-
 variables.n_subdomains_xy = variables.n_subdomains_x * variables.n_subdomains_y
 variables.n_fibers_total = variables.n_fibers_x * variables.n_fibers_y
 
-
-
-#### set Dirichlet BC and Neumann BC for the free side of the muscle
 
 #### set Dirichlet BC and Neumann BC for the free side of the muscle
 
@@ -79,21 +74,12 @@ k = nz-1 # muscle is fixed on the top
 for j in range(ny):
     for i in range(nx):
       variables.elasticity_dirichlet_bc[k*nx*ny + j*nx + i] = [0.0, 0.0, 0.0, None,None,None] # displacement ux uy uz, velocity vx vy vz
+      variables.prestretch_elasticity_dirichlet_bc[k*nx*ny + j*nx + i] = [0.0,0.0,0.0,None,None,None]
 
 # apply prestretch force on the bottom
 k = 0
 variables.prestretch_elasticity_neumann_bc = [{"element": k*mx*my + j*mx + i, "constantVector": variables.prestretch_bottom_traction, "face": "2-"} for j in range(my) for i in range(mx)]
 
-variables.prestretch_elasticity_dirichlet_bc = {}
-# fix top
-for j in range(ny):
-  for i in range(nx):
-    variables.prestretch_elasticity_dirichlet_bc[(nz-1)*nx*ny + j*nx + i] = [0.0,0.0,0.0,None,None,None]
-
-# fix bottom
-for j in range(ny):
-  for i in range(nx):
-    variables.prestretch_elasticity_dirichlet_bc[0*nx*ny + j*nx + i] = [0.0,0.0,None,None,None,None]
 
 # meshes
 
