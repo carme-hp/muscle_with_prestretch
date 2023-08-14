@@ -1,7 +1,7 @@
 # scenario name for log file
 scenario_name = "case_default"
 prestretch_bottom_traction = prestretch_bottom_traction = [0,0,-10]        # [N]  (-30 also works)
-prestretch_constant_body_force = (0,0,-9.81e-4)   # [cm/ms^2], gravity constant for the body force
+constant_body_force = (0,0,-9.81e-4)   # [cm/ms^2], gravity constant for the body force
 
 # timing parameters
 # -----------------
@@ -14,7 +14,6 @@ end_time = 20.0
 output_interval_fibers = dt_elasticity/dt_1D
 output_interval_0D = dt_elasticity/dt_0D
 output_timestep_elasticity = 10      # [ms] timestep for elasticity output files
-
 
 
 stimulation_frequency = 100*1e-3    # [ms^-1] sampling frequency of stimuli in firing_times_file, in stimulations per ms, number before 1e-3 factor is in Hertz. This is not used here.
