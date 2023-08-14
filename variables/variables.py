@@ -158,39 +158,7 @@ def get_from_obj(data, path):
 # σ (Cauchy stress)
 # J
 
-def muscle_left_write_to_file(data):
-    t = get_from_obj(data, [0, 'currentTime'])
-    z_data = get_from_obj(data, [0, 'data', ('name','geometry'), 'components', 2, 'values'])
-    x_traction = get_from_obj(data, [0, 'data', ('name','T (material traction)'), 'components', 0, 'values'])
-    y_traction = get_from_obj(data, [0, 'data', ('name','T (material traction)'), 'components', 1, 'values'])
-    z_traction = get_from_obj(data, [0, 'data', ('name','T (material traction)'), 'components', 2, 'values'])
-
-    [mx, my, mz] = get_from_obj(data, [0, 'nElementsLocal'])
-    nx = 2*mx + 1
-    ny = 2*my + 1
-    nz = 2*mz + 1
-    # # compute average z-value of end of muscle
-    z_value = 0
-    x_traction_end = 0
-    y_traction_end = 0
-    z_traction_end = 0
-    for j in range(ny):
-        for i in range(nx):
-            z_value += z_data[(nz-1)*nx*ny + j*nx + i]
-            x_traction_end += x_traction[(nz-1)*nx*ny + j*nx + i]
-            y_traction_end += y_traction[(nz-1)*nx*ny + j*nx + i]
-            z_traction_end += z_traction[(nz-1)*nx*ny + j*nx + i]
-
-    z_value /= ny*nx
-    x_traction_end /= ny*nx
-    y_traction_end /= ny*nx
-    z_traction_end /= ny*nx
-
-    f = open("muscle_left.txt", "a")
-    f.write("{:6.2f} {:+2.8f} {:+2.8f} {:+2.8f} {:+2.8f}\n".format(t, z_value, x_traction_end, y_traction_end, z_traction_end))
-    f.close()
-
-def muscle_right_write_to_file(data):
+def muscle_write_to_file(data):
     t = get_from_obj(data, [0, 'currentTime'])
     z_data = get_from_obj(data, [0, 'data', ('name','geometry'), 'components', 2, 'values'])
     x_traction = get_from_obj(data, [0, 'data', ('name','T (material traction)'), 'components', 0, 'values'])
@@ -219,49 +187,7 @@ def muscle_right_write_to_file(data):
     y_traction_begin /= ny*nx
     z_traction_begin /= ny*nx
 
-    f = open("muscle_right.txt", "a")
+    f = open(scenario_name + "muscle.txt", "a")
     f.write("{:6.2f} {:+2.8f} {:+2.8f} {:+2.8f} {:+2.8f}\n".format(t, z_value, x_traction_begin, y_traction_begin, z_traction_begin))
     f.close()
 
-def tendon_write_to_file(data):
-    t = get_from_obj(data, [0, 'currentTime'])
-    z_data = get_from_obj(data, [0, 'data', ('name','geometry'), 'components', 2, 'values'])
-    x_traction = get_from_obj(data, [0, 'data', ('name','T (material traction)'), 'components', 0, 'values'])
-    y_traction = get_from_obj(data, [0, 'data', ('name','T (material traction)'), 'components', 1, 'values'])
-    z_traction = get_from_obj(data, [0, 'data', ('name','T (material traction)'), 'components', 2, 'values'])
-
-    [mx, my, mz] = get_from_obj(data, [0, 'nElementsLocal'])
-    nx = 2*mx + 1
-    ny = 2*my + 1
-    nz = 2*mz + 1
-
-    # compute average z-value of begin of muscle
-    z_value_begin = 0.0
-    x_traction_begin = 0.0
-    y_traction_begin = 0.0
-    z_traction_begin = 0.0
-    z_value_end =  0.0
-    x_traction_end = 0.0
-    y_traction_end = 0.0
-    z_traction_end = 0.0
-    for j in range(ny):
-        for i in range(nx):
-            z_value_begin += z_data[ j*nx + i]
-            x_traction_begin += x_traction[ j*nx + i]
-            y_traction_begin += y_traction[ j*nx + i]
-            z_traction_begin += z_traction[ j*nx + i]
-            z_value_end += z_data[(nz-1)*nx*ny + j*nx + i]
-            x_traction_end += x_traction[ (nz-1)*nx*ny + j*nx + i]
-            y_traction_end += y_traction[ (nz-1)*nx*ny + j*nx + i]
-            z_traction_end += z_traction[ (nz-1)*nx*ny + j*nx + i]
-    z_value_begin /= ny*nx
-    x_traction_begin /= ny*nx
-    y_traction_begin /= ny*nx
-    z_traction_begin /= ny*nx
-    z_value_end /= ny*nx
-    x_traction_end /= ny*nx
-    y_traction_end /= ny*nx
-    z_traction_end /= ny*nx
-    f = open("tendon.txt", "a")
-    f.write("{:6.2f} {:+2.8f} {:+2.8f} {:+2.8f} {:+2.8f} {:+2.8f} {:+2.8f} {:+2.8f} {:+2.8f} \n".format(t, z_value_begin, x_traction_begin, y_traction_begin, z_traction_begin, z_value_end, x_traction_end, y_traction_end, z_traction_end))
-    f.close()

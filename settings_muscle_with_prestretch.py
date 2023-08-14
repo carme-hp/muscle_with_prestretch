@@ -478,7 +478,7 @@ config = {
                   # 1. main output writer that writes output files using the quadratic elements function space. Writes displacements, velocities and PK2 stresses.
                   "OutputWriter" : [
                     {"format": "Paraview", "outputInterval": 1, "filename": "out/"+variables.scenario_name+"/muscle1_displacements", "binary": True, "fixedFormat": False, "onlyNodalValues":True, "combineFiles":True, "fileNumbering": "incremental"},
-                    {"format": "PythonCallback", "outputInterval": 1, "callback": variables.muscle_left_write_to_file, "onlyNodalValues":True, "filename": "", "fileNumbering":'incremental'},
+                    {"format": "PythonCallback", "outputInterval": 1, "callback": variables.muscle_write_to_file, "onlyNodalValues":True, "filename": "", "fileNumbering":'incremental'},
                   ],
                   # 2. additional output writer that writes also the hydrostatic pressure
                   "pressure": {   # output files for pressure function space (linear elements), contains pressure values, as well as displacements and velocities
