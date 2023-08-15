@@ -106,7 +106,7 @@ muscle_meshes = {
   "muscle1Mesh": {
     "nElements" :         variables.n_elements_muscle,
     "physicalExtent":     variables.muscle_extent,
-    "physicalOffset":     variables.muscle_left_offset,
+    "physicalOffset":     variables.muscle_offset,
     "logKey":             "muscle1",
     "inputMeshIsGlobal":  True,
     "nRanks":             n_ranks
@@ -116,7 +116,7 @@ muscle_meshes = {
   "muscle1Mesh_quadratic": {
     "nElements" :         [elems // 2 for elems in variables.n_elements_muscle],
     "physicalExtent":     variables.muscle_extent,
-    "physicalOffset":     variables.muscle_left_offset,
+    "physicalOffset":     variables.muscle_offset,
     "logKey":             "muscle1_quadratic",
     "inputMeshIsGlobal":  True,
     "nRanks":             n_ranks,

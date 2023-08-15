@@ -55,7 +55,7 @@ for j in range(variables.n_fibers_y):
     for k in range(variables.n_points_whole_fiber):
       x_pos = x
       y_pos = y
-      z_pos = variables.muscle_left_offset[2] + k / (variables.n_points_whole_fiber - 1) * variables.muscle_extent[2]
+      z_pos = variables.muscle_offset[2] + k / (variables.n_points_whole_fiber - 1) * variables.muscle_extent[2]
       node_positions.append([x_pos,y_pos,z_pos])
     
     mesh_name = "muscle1_fiber{}".format(fiber_no)
@@ -86,7 +86,7 @@ for j in range(variables.n_fibers_y):
     for k in range(variables.n_points_whole_fiber):
       x_pos = x
       y_pos = y
-      z_pos = variables.muscle_right_offset[2] + k / (variables.n_points_whole_fiber - 1) * variables.muscle_extent[2]
+      z_pos = variables.muscle_offset[2] + k / (variables.n_points_whole_fiber - 1) * variables.muscle_extent[2]
       node_positions.append([x_pos,y_pos,z_pos])
     
     mesh_name = "muscle2_fiber{}".format(fiber_no)

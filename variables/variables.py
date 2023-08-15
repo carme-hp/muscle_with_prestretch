@@ -1,7 +1,8 @@
 # scenario name for log file
-scenario_name = "case_default"
-prestretch_bottom_traction = prestretch_bottom_traction = [0,0,-10]        # [N]  (-30 also works)
-constant_body_force = (0,0,-9.81e-4)   # [cm/ms^2], gravity constant for the body force
+scenario_name = "case_1"
+prestretch_bottom_traction =  [0,0,-10]        # [N]  (-30 also works)
+# constant_body_force = (0,0,-9.81e-4)   # [cm/ms^2], gravity constant for the body force
+constant_body_force = (0,0,0)
 
 # timing parameters
 # -----------------
@@ -26,21 +27,14 @@ n_subdomains_x = 1
 n_subdomains_y = 1
 n_subdomains_z = 1
 
-#tendon_material = "nonLinear"
-tendon_material = "SaintVenantKirchoff"         
 
-tendon_extent = [3.0, 3.0, 2.96] # [cm, cm, cm] 2.96
-n_elements_tendon = [8,8,8] 
-
-muscle_extent = [3.0, 3.0, 14.8] # [cm, cm, cm]
-n_elements_muscle = [8, 8, 40] # linear elements. each qudaratic element uses the combined nodes of 8 linear elements
+muscle_extent = [3.0, 3.0, 15] # [cm, cm, cm]
+n_elements_muscle = [8, 8, 20] # linear elements. each qudaratic element uses the combined nodes of 8 linear elements
 n_points_whole_fiber = 60
 n_fibers_x = 6
 n_fibers_y = 6
 
-muscle_left_offset = [0.0, 0.0, 0.0]
-tendon_offset = [0.0, 0.0, muscle_extent[2]]
-muscle_right_offset = [0.0, 0.0, tendon_extent[2]+muscle_extent[2]]
+muscle_offset = [0.0, 0.0, 0.0]
 
 rho = 10   ## [1e-4 kg/cm^3] density of the water
 
