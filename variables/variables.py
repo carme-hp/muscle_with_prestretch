@@ -1,7 +1,8 @@
 # scenario name for log file
-scenario_name = "case_1"
-prestretch_bottom_traction =  [0,0,-10]        # [N]  (-30 also works)
+scenario_name = "case_1N"
+prestretch_bottom_traction =  [0,0,-1]        # [N]  (-30 also works)
 # constant_body_force = (0,0,-9.81e-4)   # [cm/ms^2], gravity constant for the body force
+zdisplacement = 0.15223752
 constant_body_force = (0,0,0)
 
 # timing parameters
@@ -154,6 +155,8 @@ def get_from_obj(data, path):
 
 def muscle_write_to_file(data):
     t = get_from_obj(data, [0, 'currentTime'])
+    x_data = get_from_obj(data, [0, 'data', ('name','geometry'), 'components', 0, 'values'])
+    y_data = get_from_obj(data, [0, 'data', ('name','geometry'), 'components', 1, 'values'])
     z_data = get_from_obj(data, [0, 'data', ('name','geometry'), 'components', 2, 'values'])
     x_traction = get_from_obj(data, [0, 'data', ('name','T (material traction)'), 'components', 0, 'values'])
     y_traction = get_from_obj(data, [0, 'data', ('name','T (material traction)'), 'components', 1, 'values'])
@@ -164,13 +167,18 @@ def muscle_write_to_file(data):
     ny = 2*my + 1
     nz = 2*mz + 1
     # compute average z-value of end of muscle
+    x_value = 0
+    y_value = 0
     z_value = 0
+
     x_traction_begin = 0
     y_traction_begin = 0
     z_traction_begin = 0
 
     for j in range(ny):
         for i in range(nx):
+            x_value += x_data[j*nx + i]
+            y_value += y_data[j*nx + i]
             z_value += z_data[j*nx + i]
             x_traction_begin += x_traction[ j*nx + i]
             y_traction_begin += y_traction[ j*nx + i]
@@ -182,6 +190,6 @@ def muscle_write_to_file(data):
     z_traction_begin /= ny*nx
 
     f = open(scenario_name + "muscle.txt", "a")
-    f.write("{:6.2f} {:+2.8f} {:+2.8f} {:+2.8f} {:+2.8f}\n".format(t, z_value, x_traction_begin, y_traction_begin, z_traction_begin))
+    f.write("{:6.2f} {:+2.8f} {:+2.8f} {:+2.8f} {:+2.8f} {:+2.8f} {:+2.8f}\n".format(t, x_value, y_value, z_value, x_traction_begin, y_traction_begin, z_traction_begin))
     f.close()
 

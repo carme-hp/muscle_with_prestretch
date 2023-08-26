@@ -87,16 +87,35 @@ variables.n_fibers_total = variables.n_fibers_x * variables.n_fibers_y
 [nx, ny, nz] = [elem + 1 for elem in variables.n_elements_muscle]
 [mx, my, mz] = [elem // 2 for elem in variables.n_elements_muscle] # quadratic elements consist of 2 linear elements along each axis
 
+
 k = nz-1 # muscle is fixed on the top
 for j in range(ny):
     for i in range(nx):
-      variables.elasticity_dirichlet_bc[k*nx*ny + j*nx + i] = [0.0, 0.0, 0.0, None,None,None] # displacement ux uy uz, velocity vx vy vz
+      # variables.elasticity_dirichlet_bc[k*nx*ny + j*nx + i] = [0.0, 0.0, 0.0, None,None,None] # displacement ux uy uz, velocity vx vy vz
       variables.prestretch_elasticity_dirichlet_bc[k*nx*ny + j*nx + i] = [0.0,0.0,0.0,None,None,None]
 
 # apply prestretch force on the bottom
 k = 0
 variables.prestretch_elasticity_neumann_bc = [{"element": k*mx*my + j*mx + i, "constantVector": variables.prestretch_bottom_traction, "face": "2-"} for j in range(my) for i in range(mx)]
 
+# manually apply displacement based on prestretch result
+a = variables.zdisplacement #hard-coded
+for j in range(ny):
+  for i in range(nx):
+      variables.elasticity_dirichlet_bc[k*nx*ny + j*nx + i] = [None, None, -a, None,None,None] # displacement ux uy uz, velocity vx vy vz
+
+# initial_displacements = [[0.0,0.0,0.0] for _ in range(nx * ny * nz)]
+initial_displacements = [[0.0,0.0,0.0] for _ in range(nx * ny * nz)]
+for k in range(nz):
+  for j in range(ny):
+    for i in range(nx):
+      initial_displacements[k*nx*ny + j*nx + i] = [0.0, 0.0, -a + a*k/nz ]
+
+# for k in range(nz):
+#     variables.elasticity_dirichlet_bc[k*nx*ny] = [0.0, 0.0, None, None,None,None] # displacement ux uy uz, velocity vx vy vz
+
+# #fix corner
+# variables.elasticity_dirichlet_bc[0] = [0.0, 0.0,-1.86462831, None,None,None] # displacement ux uy uz, velocity vx vy vz
 
 # meshes
 
@@ -189,7 +208,6 @@ config = {
     # use global slot, because automatic connection of "Razumova/activestress" does not work for some reason
     # "Razumova/activestress" from CellML to Muscle contaction solver
     ("m1gout", "m1g_in"),
-    ("m2gout", "m2g_in"),
   ],
 
   "Coupling": {
@@ -210,7 +228,7 @@ config = {
         "residualNormLogFilename":    "out/"+variables.scenario_name+"/log_prestretch_residual_norm.txt",   # log file where residual norm values of the nonlinear solver will be written
         "useAnalyticJacobian":        True,                      # whether to use the analytically computed jacobian matrix in the nonlinear solver (fast)
         "useNumericJacobian":         False,                     # whether to use the numerically computed jacobian matrix in the nonlinear solver (slow), only works with non-nested matrices, if both numeric and analytic are enable, it uses the analytic for the preconditioner and the numeric as normal jacobian
-        "slotNames":                  ["m1ux", "m1uy", "m1uz"],  # slot names of the data connector slots, there are three slots, namely the displacement components ux, uy, uz
+        "slotNames":                  [], #["m1ux", "m1uy", "m1uz"],  # slot names of the data connector slots, there are three slots, namely the displacement components ux, uy, uz
         "dumpDenseMatlabVariables":   False,                     # whether to have extra output of matlab vectors, x,r, jacobian matrix (very slow)
         # if useAnalyticJacobian,useNumericJacobian and dumpDenseMatlabVariables all all three true, the analytic and numeric jacobian matrices will get compared to see if there are programming errors for the analytic jacobian
         
@@ -246,7 +264,7 @@ config = {
         # define which file formats should be written
         # 1. main output writer that writes output files using the quadratic elements function space. Writes displacements, velocities and PK2 stresses.
         "OutputWriter" : [
-          
+          {"format": "PythonCallback", "outputInterval": 1, "callback": variables.muscle_write_to_file, "onlyNodalValues":True, "filename": "", "fileNumbering":'incremental'},
           # Paraview files
           {"format": "Paraview", "outputInterval": 1, "filename": "out/"+variables.scenario_name+"/prestretch_u", "binary": True, "fixedFormat": False, "onlyNodalValues":True, "combineFiles":True, "fileNumbering": "incremental"},
         ],
@@ -474,7 +492,7 @@ config = {
 
                   # boundary and initial conditions
                   "dirichletBoundaryConditions": variables.elasticity_dirichlet_bc,   # the initial Dirichlet boundary conditions that define values for displacements u and velocity v
-                  "neumannBoundaryConditions":   variables.elasticity_neumann_bc,    # Neumann boundary conditions that define traction forces on surfaces of elements
+                  "neumannBoundaryConditions":   None,    # Neumann boundary conditions that define traction forces on surfaces of elements
                   "divideNeumannBoundaryConditionValuesByTotalArea": False,            # if the given Neumann boundary condition values under "neumannBoundaryConditions" are total forces instead of surface loads and therefore should be scaled by the surface area of all elements where Neumann BC are applied
                   "updateDirichletBoundaryConditionsFunction": None,                  # muscle1_update_dirichlet_boundary_conditions_helper, function that updates the dirichlet BCs while the simulation is running
                   "updateDirichletBoundaryConditionsFunctionCallInterval": 1,         # every which step the update function should be called, 1 means every time step
@@ -482,7 +500,7 @@ config = {
                   "updateNeumannBoundaryConditionsFunctionCallInterval": 1,           # every which step the update function should be called, 1 means every time step
 
 
-                  "initialValuesDisplacements":  [[0.0,0.0,0.0] for _ in range(nx * ny * nz)],     # the initial values for the displacements, vector of values for every node [[node1-x,y,z], [node2-x,y,z], ...]
+                  "initialValuesDisplacements":  initial_displacements,     # the initial values for the displacements, vector of values for every node [[node1-x,y,z], [node2-x,y,z], ...]
                   "initialValuesVelocities":     [[0.0,0.0,0.0] for _ in range(nx * ny * nz)],     # the initial values for the velocities, vector of values for every node [[node1-x,y,z], [node2-x,y,z], ...]
                   "extrapolateInitialGuess":     True,                                # if the initial values for the dynamic nonlinear problem should be computed by extrapolating the previous displacements and velocities
                   "constantBodyForce":           variables.constant_body_force,       # a constant force that acts on the whole body, e.g. for gravity
