@@ -155,41 +155,27 @@ def get_from_obj(data, path):
 
 def muscle_write_to_file(data):
     t = get_from_obj(data, [0, 'currentTime'])
-    x_data = get_from_obj(data, [0, 'data', ('name','geometry'), 'components', 0, 'values'])
-    y_data = get_from_obj(data, [0, 'data', ('name','geometry'), 'components', 1, 'values'])
     z_data = get_from_obj(data, [0, 'data', ('name','geometry'), 'components', 2, 'values'])
-    x_traction = get_from_obj(data, [0, 'data', ('name','T (material traction)'), 'components', 0, 'values'])
-    y_traction = get_from_obj(data, [0, 'data', ('name','T (material traction)'), 'components', 1, 'values'])
-    z_traction = get_from_obj(data, [0, 'data', ('name','T (material traction)'), 'components', 2, 'values'])
 
     [mx, my, mz] = get_from_obj(data, [0, 'nElementsLocal'])
     nx = 2*mx + 1
     ny = 2*my + 1
     nz = 2*mz + 1
     # compute average z-value of end of muscle
-    x_value = 0
-    y_value = 0
-    z_value = 0
-
-    x_traction_begin = 0
-    y_traction_begin = 0
-    z_traction_begin = 0
+    z_value_begin = 0.0
+    z_value_end = 0.0
 
     for j in range(ny):
         for i in range(nx):
-            x_value += x_data[j*nx + i]
-            y_value += y_data[j*nx + i]
-            z_value += z_data[j*nx + i]
-            x_traction_begin += x_traction[ j*nx + i]
-            y_traction_begin += y_traction[ j*nx + i]
-            z_traction_begin += z_traction[j*nx + i]
-    
-    z_value /= ny*nx
-    x_traction_begin /= ny*nx
-    y_traction_begin /= ny*nx
-    z_traction_begin /= ny*nx
+            z_value_begin += z_data[j*nx + i]
+            z_value_end += z_data[(nz-1)*nx*ny + j*nx + i]
+
+
+    z_value_begin /= ny*nx
+    z_value_end /= ny*nx
+
 
     f = open(scenario_name + "muscle.txt", "a")
-    f.write("{:6.2f} {:+2.8f} {:+2.8f} {:+2.8f} {:+2.8f} {:+2.8f} {:+2.8f}\n".format(t, x_value, y_value, z_value, x_traction_begin, y_traction_begin, z_traction_begin))
+    f.write("{:6.2f} {:+2.8f} {:+2.8f}\n".format(t,z_value_begin, z_value_end))
     f.close()
 
